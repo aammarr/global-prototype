@@ -22,6 +22,7 @@ class UserDetailsSchema extends Schema {
       table.integer('is_verified', 60).nullable()
       table.integer('is_approved', 60).nullable()
       table.timestamps()
+      table.datetime('deleted_at').nullable()
     })
   }
 

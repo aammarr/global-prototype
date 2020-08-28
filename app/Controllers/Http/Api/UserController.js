@@ -1,35 +1,35 @@
 'use strict'
 
 const BaseController = use('App/Controllers/BaseController')
+const User = use('App/Models/Sql/User')
+const Database = use('Database')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
-
 /**
- * Resourceful controller for interacting with testapis
+ * Resourceful controller for interacting with users
  */
-class TestApiController extends BaseController{
+class UserController extends BaseController{
   /**
-   * Show a list of all testapis.
-   * GET testapis
+   * Show a list of all users.
+   * GET users
    *
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) {
-    var data = 'Everything Working Fine.'
-    var message = 'Data retrieved succesfully.'
-     
-    return this.sendMyResponse(data)        //data,status,message
+  async index ({ request, response, view }) { 
+    var data = request.all()
+    console.log(data)
+    return this.sendMyResponse(data)
   }
 
   /**
-   * Render a form to be used for creating a new testapi.
-   * GET testapis/create
+   * Render a form to be used for creating a new user.
+   * GET users/create
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -40,8 +40,8 @@ class TestApiController extends BaseController{
   }
 
   /**
-   * Create/save a new testapi.
-   * POST testapis
+   * Create/save a new user.
+   * POST users
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -51,8 +51,8 @@ class TestApiController extends BaseController{
   }
 
   /**
-   * Display a single testapi.
-   * GET testapis/:id
+   * Display a single user.
+   * GET users/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -63,8 +63,8 @@ class TestApiController extends BaseController{
   }
 
   /**
-   * Render a form to update an existing testapi.
-   * GET testapis/:id/edit
+   * Render a form to update an existing user.
+   * GET users/:id/edit
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -75,8 +75,8 @@ class TestApiController extends BaseController{
   }
 
   /**
-   * Update testapi details.
-   * PUT or PATCH testapis/:id
+   * Update user details.
+   * PUT or PATCH users/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -86,8 +86,8 @@ class TestApiController extends BaseController{
   }
 
   /**
-   * Delete a testapi with id.
-   * DELETE testapis/:id
+   * Delete a user with id.
+   * DELETE users/:id
    *
    * @param {object} ctx
    * @param {Request} ctx.request
@@ -95,6 +95,25 @@ class TestApiController extends BaseController{
    */
   async destroy ({ params, request, response }) {
   }
+
+  // Signin
+  async signin({ request, auth, response}){
+    
+    let input = request.only(['username','email','password'])
+    let user = {}
+    user = await User.create(input)
+    console.log(user)
+
+    return this.sendMyResponse(user,'User Created Successfuly')
+  }
+
+  async getAllUsers({ params, request, response }){
+    let data = {}
+    data = (await User.query().fetch()).toJSON()
+
+    // return ctx.view.render('admin.tags', data)
+    return this.sendMyResponse(data)
+  }
 }
 
-module.exports = TestApiController
+module.exports = UserController

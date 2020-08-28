@@ -25,12 +25,12 @@ class BaseController {
         return this.repo.destroy(params, response)
     }
 
-    async sendMyResponse(status,data,msg){
+    async sendMyResponse(data,msg='Data retrieved succesfully.',status=200){
         
         let obj = { 
             'status': status,
-            'data':data,
-            'message':msg
+            'data': data,
+            'message': msg
         };
         return obj
     }
