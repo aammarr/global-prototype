@@ -2,7 +2,9 @@
 
 const BaseController = use('App/Controllers/BaseController')
 const User = use('App/Models/Sql/User')
+const UserDetails = use('App/Models/Sql/UserDetails')
 const Database = use('Database')
+const Hash = use('Hash')
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -99,17 +101,24 @@ class UserController extends BaseController{
   // Signin
   async signin({ request, auth, response}){
     
-    let input = request.only(['username','email','password'])
+    let userData = request.only(['username','email','password'])
+    const safePassword = await Hash.make(request.input('password'))
+    userData.password = safePassword
+    let userDetailsData = request.only(['name','phone','gender'])
     let user = {}
-    user = await User.create(input)
-    console.log(user)
+    let userDetails = {}
+
+    user = await User.create(userData)
+    userDetailsData.user_id=user.id
+    userDetails = await UserDetails.create(userDetailsData)
 
     return this.sendMyResponse(user,'User Created Successfuly')
   }
 
+  // Get All Users
   async getAllUsers({ params, request, response }){
     let data = {}
-    data = (await User.query().fetch()).toJSON()
+    data = (await User.query().with('details').fetch()).toJSON()
 
     // return ctx.view.render('admin.tags', data)
     return this.sendMyResponse(data)

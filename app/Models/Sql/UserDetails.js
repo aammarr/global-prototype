@@ -3,7 +3,8 @@
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
 
-class UserDetail extends Model {
+class UserDetails extends Model {
+
     static get table () {
         return 'user_details'
     }
@@ -17,8 +18,9 @@ class UserDetail extends Model {
     }
     
     static get visible () {
-        return ['id','user_id', 'first_name','first_name','phone','created_at']
+        return ['id','user_id', 'name','gender','phone','address','city','country',
+                'image','is_verified','is_approved','lat','long','created_at']
     }
 }
 
-module.exports = UserDetail
+module.exports = UserDetails

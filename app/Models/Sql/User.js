@@ -18,7 +18,7 @@ class User extends Model {
     }
     
     static get visible () {
-        return ['id','name','username','email','first_name','last_name','phone','avatar','address','city','country','role_id','created_at']
+        return ['id','name','username','email','created_at']
     }
 
     getCreatedAtAgo({created_at}) {
