@@ -62,6 +62,11 @@ class UserController extends BaseController{
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
+
+    let user = (await User.query().with('details').where('id',params.id).first())
+    
+
+    return this.sendMyResponse(user)
   }
 
   /**
@@ -114,6 +119,29 @@ class UserController extends BaseController{
 
     return this.sendMyResponse(user,'User Created Successfuly')
   }
+
+  // Login
+  async login({request, auth, response}){
+    let input = request.only(['email','password'])
+    let user = await auth.attempt(input.email, input.password)
+
+    return this.sendMyResponse(user)
+  }
+
+  // Refresh Token
+  async refreshToken({request,auth,params}){
+    
+    let data = await auth.withRefreshToken().attempt(uid, password)
+    
+
+    return this.sendMyResponse(data)
+  }
+
+  async me(){
+
+    return this.sendMyResponse('data');
+  }
+
 
   // Get All Users
   async getAllUsers({ params, request, response }){

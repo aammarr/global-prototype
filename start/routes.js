@@ -28,24 +28,20 @@ Route.group(() => {
 
     Route.get('/test-api-route','Api/TestApiController.index')
     Route.post('/signin','Api/UserController.signin')
-    Route.get('/login','Api/UserController.login')
+    Route.post('/login','Api/UserController.login')
     Route.get('/logout','Api/UserController.logout')
     
     Route.get('/users','Api/UserController.getAllUsers')
 
-}).prefix('api/v1')
-
+}).prefix('api/v1').middleware('guest')
 
 Route.group(() => {  
 
-    Route.get('users/:id', 'UserController.show')
+    Route.get('refresh-token', 'Api/UserController.refreshToken')    
+    Route.get('user/:id', 'Api/UserController.show')    
 
-}).prefix('api/v1')
+}).prefix('api/v1').middleware('auth')
 
-// .middleware('auth')
-
-
-  
 
  /**
  * Web Routes
