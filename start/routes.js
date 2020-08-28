@@ -28,6 +28,9 @@ Route.on('/').render('welcome')
 Route.group(() => {  
 
     Route.get('/test-api-route','Api/TestApiController.index')
+    Route.get('/signin','Api/UserController.signin')
+    Route.get('/login','Api/UserController.login')
+    Route.get('/logout','Api/UserController.logout')
 
 }).prefix('api/v1')
 
