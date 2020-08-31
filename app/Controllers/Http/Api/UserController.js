@@ -1,10 +1,10 @@
-'use strict'
+"use strict";
 
-const BaseController = use('App/Controllers/BaseController')
-const User = use('App/Models/Sql/User')
-const UserDetails = use('App/Models/Sql/UserDetails')
-const Database = use('Database')
-const Hash = use('Hash')
+const BaseController = use("App/Controllers/BaseController");
+const User = use("App/Models/Sql/User");
+const UserDetails = use("App/Models/Sql/UserDetails");
+const Database = use("Database");
+const Hash = use("Hash");
 
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
@@ -13,7 +13,7 @@ const Hash = use('Hash')
 /**
  * Resourceful controller for interacting with users
  */
-class UserController extends BaseController{
+class UserController extends BaseController {
   /**
    * Show a list of all users.
    * GET users
@@ -23,10 +23,10 @@ class UserController extends BaseController{
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async index ({ request, response, view }) { 
-    var data = request.all()
-    console.log(data)
-    return this.sendMyResponse(data)
+  async index({ request, response, view }) {
+    var data = request.all();
+    console.log(data);
+    return this.sendMyResponse(data);
   }
 
   /**
@@ -38,8 +38,7 @@ class UserController extends BaseController{
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async create ({ request, response, view }) {
-  }
+  async create({ request, response, view }) {}
 
   /**
    * Create/save a new user.
@@ -49,8 +48,7 @@ class UserController extends BaseController{
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
-  }
+  async store({ request, response }) {}
 
   /**
    * Display a single user.
@@ -61,12 +59,13 @@ class UserController extends BaseController{
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show({ params, request, response, view }) {
+    let user = await User.query()
+      .with("details")
+      .where("id", params.id)
+      .first();
 
-    let user = (await User.query().with('details').where('id',params.id).first())
-    
-
-    return this.sendMyResponse(user)
+    return this.sendMyResponse(user);
   }
 
   /**
@@ -78,8 +77,7 @@ class UserController extends BaseController{
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async edit ({ params, request, response, view }) {
-  }
+  async edit({ params, request, response, view }) {}
 
   /**
    * Update user details.
@@ -89,8 +87,7 @@ class UserController extends BaseController{
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
-  }
+  async update({ params, request, response }) {}
 
   /**
    * Delete a user with id.
@@ -100,57 +97,75 @@ class UserController extends BaseController{
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
-  }
+  async destroy({ params, request, response }) {}
 
   // Signin
-  async signin({ request, auth, response}){
-    
-    let userData = request.only(['username','email','password'])
-    const safePassword = await Hash.make(request.input('password'))
-    userData.password = safePassword
-    let userDetailsData = request.only(['name','phone','gender'])
-    let user = {}
-    let userDetails = {}
+  async signin({ request, auth, response }) {
+    let userData = request.only(["username", "email", "password"]);
+    const safePassword = await Hash.make(request.input("password"));
+    userData.password = safePassword;
+    let userDetailsData = request.only(["name", "phone", "gender"]);
+    let user = {};
+    let userDetails = {};
 
-    user = await User.create(userData)
-    userDetailsData.user_id=user.id
-    userDetails = await UserDetails.create(userDetailsData)
+    user = await User.create(userData);
+    userDetailsData.user_id = user.id;
+    userDetails = await UserDetails.create(userDetailsData);
 
-    return this.sendMyResponse(user,'User Created Successfuly')
+    return this.sendMyResponse(user, "User Created Successfuly");
+  }
+
+  async getAuthUser({ request, auth, response }) {
+    try {
+      const user = await auth.getUser();
+      return this.sendMyResponse(user);
+    } catch (error) {
+      response.send("Missing or invalid jwt token");
+    }
   }
 
   // Login
-  async login({request, auth, response}){
-    let input = request.only(['email','password'])
-    let user = await auth.attempt(input.email, input.password)
+  async login({ request, auth, response }) {
+    let input = request.only(["email", "password"]);
+    const user = await auth.attempt(input.email, input.password);
+    // const user = await auth.getUser();
 
-    return this.sendMyResponse(user)
+    return this.sendMyResponse(user);
+  }
+
+  async logout({ request, response, auth }) {
+    const refreshToken = request.header("Authorization");
+    const token = refreshToken.slice(7);
+
+    if (!token) {
+      // You can throw any exception you want here
+      throw BadRequestException.invoke(`Refresh Token missing`);
+    }
+
+    const result = await auth.authenticator("jwt").revokeTokens([token], true);
+
+    return this.sendMyResponse(result);
   }
 
   // Refresh Token
-  async refreshToken({request,auth,params}){
-    
-    let data = await auth.withRefreshToken().attempt(uid, password)
-    
+  async refreshToken({ request, auth, params }) {
+    let data = await auth.withRefreshToken().attempt(uid, password);
 
-    return this.sendMyResponse(data)
+    return this.sendMyResponse(data);
   }
 
-  async me(){
-
-    return this.sendMyResponse('data');
+  async me() {
+    return this.sendMyResponse("data");
   }
-
 
   // Get All Users
-  async getAllUsers({ params, request, response }){
-    let data = {}
-    data = (await User.query().with('details').fetch()).toJSON()
+  async getAllUsers({ params, request, response }) {
+    let data = {};
+    data = (await User.query().with("details").fetch()).toJSON();
 
     // return ctx.view.render('admin.tags', data)
-    return this.sendMyResponse(data)
+    return this.sendMyResponse(data);
   }
 }
 
-module.exports = UserController
+module.exports = UserController;
